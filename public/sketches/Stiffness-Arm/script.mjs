@@ -31,16 +31,15 @@ function stiffnessMeasurement(canvas, body) {
     const rightRatio = rightArmDist / rightLegDist;
     const leftRatio = leftArmDist / leftLegDist;
     const averageStiffness = (rightRatio + leftRatio) / 2;
-    
-    /* 
+
     const synth = new Tone.FMSynth().toDestination();
     
-        if(rightRatio < 0.70 && rightRatio > 0.50) {
-          synth.triggerAttackRelease("C4", "4n");
-        } else if(rightRatio > 0.70) {
-          synth.triggerAttackRelease("E4", "8n");
-        }
-         */
+    if(rightRatio < 0.7 && rightRatio > 0.5) {
+      synth.triggerAttackRelease("C4", "0", 0.7);
+    } else if (rightRatio > 0.7) {
+      synth.triggerAttackRelease("E4", "0", 0.7);
+    }
+
     console.log(`Left side: ${leftRatio}, Right side: ${rightRatio}`);
   }
 }
