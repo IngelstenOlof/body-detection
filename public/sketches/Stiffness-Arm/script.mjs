@@ -21,19 +21,27 @@ async function run(canvas, status) {
 }
 
 function stiffnessMeasurement(canvas, body) {
-  if(body) {
+  if (body) {
     let rightArmDist = body.getDistanceBetweenBodyParts3D(bodyPartsList.rightShoulder, bodyPartsList.rightWrist);
     let rightLegDist = body.getDistanceBetweenBodyParts3D(bodyPartsList.rightHip, bodyPartsList.rightAnkle);
-    
+
     let leftArmDist = body.getDistanceBetweenBodyParts3D(bodyPartsList.leftShoulder, bodyPartsList.leftWrist);
     let leftLegDist = body.getDistanceBetweenBodyParts3D(bodyPartsList.leftHip, bodyPartsList.leftAnkle);
-    
+
     const rightRatio = rightArmDist / rightLegDist;
     const leftRatio = leftArmDist / leftLegDist;
-
     const averageStiffness = (rightRatio + leftRatio) / 2;
     
-    console.log(averageStiffness);
+    /* 
+    const synth = new Tone.FMSynth().toDestination();
+    
+        if(rightRatio < 0.70 && rightRatio > 0.50) {
+          synth.triggerAttackRelease("C4", "4n");
+        } else if(rightRatio > 0.70) {
+          synth.triggerAttackRelease("E4", "8n");
+        }
+         */
+    console.log(`Left side: ${leftRatio}, Right side: ${rightRatio}`);
   }
 }
 
