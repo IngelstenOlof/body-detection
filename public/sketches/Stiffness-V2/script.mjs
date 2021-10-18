@@ -3,6 +3,8 @@ import { bodyPartNames, bodyPartsList, Bodies, detectBodies } from "../../lib/bo
 import { drawImageWithOverlay, drawBodyParts } from '../../lib/drawing.mjs'
 import { continuosly } from '../../lib/system.mjs'
 import { createCameraFeed, facingMode } from '../../lib/camera.mjs'
+import {scale, clamp} from '../../util.js'
+
 
 async function run(canvas, status) {
   let latestBody;
@@ -32,16 +34,45 @@ function stiffnessMeasurement(canvas, body) {
     const leftRatio = leftArmDist / leftLegDist;
     const averageStiffness = (rightRatio + leftRatio) / 2;
 
-    const synth = new Tone.FMSynth().toDestination();
-    
-    if(rightRatio < 0.7 && rightRatio > 0.5) {
-      synth.triggerAttackRelease("C4", "0", 0.7);
-    } else if (rightRatio > 0.7) {
-      synth.triggerAttackRelease("E4", "0", 0.7);
-    }
+    leftTime = clamp(scale(leftRatio, 0.5, 1.2, 0.05, 0.4), 0.05, 0.4);
+    rightTime = clamp(scale(rightRatio, 0.5, 1.2, 0.05, 0.4), 0.05, 0.4);
 
-    console.log(`Left side: ${leftRatio}, Right side: ${rightRatio}`);
+    
+    console.log(averageStiffness);
   }
 }
 
+Tone.Transport.bpm.value = 120;
+const leftPan = new Tone.Panner(-1).toDestination();
+const rightPan = new Tone.Panner(1).toDestination();
+const rightOsc = new Tone.Oscillator(440, "sine").connect(rightPan); // 440 = A
+const leftOsc = new Tone.Oscillator(554.365, "sine").connect(leftPan); // 554.365 = C#
+let leftTime = 0.1;
+let rightTime = 0.1;
+
+document.getElementById("startbtn").onclick = () => {
+  Tone.start();
+  
+  Tone.Transport.start();
+  Tone.Transport.scheduleRepeat((time) => {
+    leftOsc.start(time).stop(time + leftTime);
+    rightOsc.start(time).stop(time + rightTime);
+  }, "8n");
+}
+
+document.getElementById("stopbtn").onclick = () => {
+  Tone.Transport.stop();
+}
+
 export { run }
+
+
+/* 
+document.getElementById("startbtn").onclick = () => {
+  Tone.start();
+  Tone.Transport.start();
+  Tone.Transport.scheduleRepeat((time) => {
+    rightOsc.start(time).stop(time + 0.1);
+    leftOsc.start(time).stop(time + 0.1);
+  }, "8n");
+} */
