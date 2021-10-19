@@ -26,7 +26,11 @@ async function run(canvas, status) {
 
   detectBodies(config, (e) => (latestBody = e.detail.bodies.listOfBodies[0]));
 
-  continuosly(() => drawImageWithOverlay(canvas, video, () => stiffnessMeasurement(canvas, latestBody)));
+  continuosly(() =>
+    drawImageWithOverlay(canvas, video, () =>
+      stiffnessMeasurement(canvas, latestBody)
+    )
+  );
 }
 
 function stiffnessMeasurement(canvas, body) {
@@ -49,28 +53,39 @@ function stiffnessMeasurement(canvas, body) {
       bodyPartsList.leftAnkle
     );
 
-    rightArmDist = Math.floor(clamp(scale(rightArmDist, 0.3, 0.45, 0, 100), 0, 100));
-    leftArmDist = Math.floor(clamp(scale(leftArmDist, 0.3, 0.45, 0, 100), 0, 100));
-    rightLegDist = Math.floor(clamp(scale(rightLegDist, 0.4, 0.70, 0, 100), 0, 100));
-    leftLegDist = Math.floor(clamp(scale(leftLegDist, 0.4, 0.7, 0, 100), 0, 100));
+    rightArmDist = Math.floor(
+      clamp(scale(rightArmDist, 0.3, 0.45, 0, 100), 0, 100)
+    );
+    leftArmDist = Math.floor(
+      clamp(scale(leftArmDist, 0.3, 0.45, 0, 100), 0, 100)
+    );
+    rightLegDist = Math.floor(
+      clamp(scale(rightLegDist, 0.4, 0.7, 0, 100), 0, 100)
+    );
+    leftLegDist = Math.floor(
+      clamp(scale(leftLegDist, 0.4, 0.7, 0, 100), 0, 100)
+    );
 
-    let averageStiffness = (rightArmDist + leftArmDist + leftLegDist + rightLegDist) / 4;
+    let averageStiffness =
+      (rightArmDist + leftArmDist + leftLegDist + rightLegDist) / 4;
 
     controlSound(averageStiffness, body);
   }
 }
 
-let bpm = 60;
+let bpm = 40;
 
 function controlSound(avgStiff, body) {
-  let rHandSpeed = body.getBodyPart3D(bodyPartsList.rightWrist).speed.absoluteSpeed.toFixed(2);
-  rHandSpeed = clamp(scale(rHandSpeed, 0.1, 1, 1, 1.03), 1, 1.03);
-  let bpmLimit = scale(avgStiff, 0, 100, 80, 200);
+  let rHandSpeed = body
+    .getBodyPart3D(bodyPartsList.rightWrist)
+    .speed.absoluteSpeed.toFixed(2);
+  rHandSpeed = clamp(scale(rHandSpeed, 0.1, 1, 1, 1.2), 1, 1.2);
+  let bpmLimit = clamp(scale(avgStiff, 30, 100, 40, 120), 40, 120);
 
-  let subtraction = scale(avgStiff, 0, 100, 0.971, 0.99);
+  let subtraction = clamp(scale(avgStiff, 30, 100, 0.8334, 0.9), 0.834, 0.9);
 
   bpm *= subtraction * rHandSpeed;
-  bpm = clamp(bpm, 60, bpmLimit);
+  bpm = clamp(bpm, bpmLimit, 200);
   Tone.Transport.bpm.value = bpm;
   console.log(bpm);
 }
@@ -83,11 +98,10 @@ document.getElementById("startbtn").onclick = () => {
   Tone.Transport.scheduleRepeat((time) => {
     osc.start(time).stop(time + 0.1);
   }, "8n");
-}
-
+};
 
 document.getElementById("stopbtn").onclick = () => {
   Tone.Transport.stop();
-}
+};
 
-export { run }
+export { run };
