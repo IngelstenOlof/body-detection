@@ -2,6 +2,7 @@ import { bodyPartNames, bodyPartsList, Bodies, detectBodies } from '../../lib/bo
 import { drawImageWithOverlay, drawBodyParts } from '../../lib/drawing.mjs'
 import { continuosly } from '../../lib/system.mjs'
 import { createCameraFeed, facingMode } from '../../lib/camera.mjs'
+import { scale, clamp } from '../../util.js';
 
 async function run(canvas, status) {
   let latestBody;
@@ -16,12 +17,39 @@ async function run(canvas, status) {
 
   detectBodies(config, (e) => (latestBody = e.detail.bodies.listOfBodies[0]));
 
-  continuosly(() => drawImageWithOverlay(canvas, video, () => balance()));
+  continuosly(() => drawImageWithOverlay(canvas, video, () => balance(canvas, latestBody)));
 }
 
-function balance() {
-  
+function balance(canvas, body) {
+  if(body) {
+    let leftFootPos = body.getBodyPart2D(bodyPartsList.leftAnkle).position;
+    let rightHipPos = body.getBodyPart2D(bodyPartsList.rightHip).position;
+    
+    let distanceFeet = body.getDistanceBetweenBodyParts3D(bodyPartsList.leftAnkle, bodyPartsList.rightAnkle);
+    distanceFeet = clamp(scale(distanceFeet, 0.24, 1.04, -40, -6), -40, -6);
+    console.log(distanceFeet);
 
+    osc.volume.value = distanceFeet;
+
+    if(leftFootPos.y > rightHipPos.y - 20 && leftFootPos.y < rightHipPos.y + 20) {
+      console.log("HIP TIME!")
+    }
+  }
 }
+
+const osc = new Tone.Oscillator(440, "sine").toDestination();
+
+document.getElementById("startbtn").onclick = () => {
+  Tone.start();
+  Tone.Transport.start();
+  Tone.Transport.scheduleRepeat((time) => {
+    osc.start(time);
+  }, "8n");
+};
+
+document.getElementById("stopbtn").onclick = () => {
+  Tone.Transport.stop();
+  osc.stop();
+};
 
 export { run }
