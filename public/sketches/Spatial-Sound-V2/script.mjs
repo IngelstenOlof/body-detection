@@ -30,26 +30,33 @@ function spatialSound(canvas, body) {
 
 function detectPosition(body) {
   let rightWrist = body.getBodyPart3D(bodyPartsList.rightWrist);
-  let noseWristDist = body.getDistanceBetweenBodyParts3D(bodyPartsList.rightWrist, bodyPartsList.nose);
+  let nose = body.getBodyPart3D(bodyPartsList.nose);
   
-  let wristVol = clamp(scale(noseWristDist, 0.6, 0.1, -40, -6), -40, -6);
-  let wristPan = clamp(scale(rightWrist.position.x, -0.62, 0.35, 1, -1), -1, 1);
+  Tone.Listener.positionX.value = nose.position.z;
+  Tone.Listener.positionY.value = nose.position.y;
+  Tone.Listener.positionZ.value = nose.position.x;
 
-  listener.positionX.value = ;
+  pan3D.positionX.value = rightWrist.position.x;
+  pan3D.positionY.value = rightWrist.position.y;
+  pan3D.positionZ.value = rightWrist.position.z;
 
-  console.log(noseWristDist);
 }
 
-const pan3D = new Tone.Panner3D(options).toDestination();
 const options = {
-positionX,
-positionY,
-positionZ,
+positionX: 0,
+positionY: 0,
+positionZ: 0,
 panningModel: "HRTF",
+distanceModel: "exponential",
 };
+const pan3D = new Tone.Panner3D(options).toDestination();
 const osc = new Tone.Oscillator(440, "sine").connect(pan3D); // 440 = A
 
-const listener = Tone.Listener();
+function setRotation(angle) {
+  Tone.Listener.forwardX.value = Math.sin(angle);
+  Tone.Listener.forwardY.value = 0;
+  Tone.Listener.forwardZ.value = -Math.cos(angle);
+}
 
 document.getElementById("startbtn").onclick = () => {
   Tone.start();
