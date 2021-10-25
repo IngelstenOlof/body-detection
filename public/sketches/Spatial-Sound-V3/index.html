@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Generic Sketch</title>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <div id="status"></div>
+    <button id="startbtn">Start Sound</button>
+    <button id="stopbtn">Stop Sound</button>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.10/Tone.js"></script>
+  <script type="module">
+    import { run } from "./script.mjs";
+    run(document.getElementById("canvas"), document.getElementById("status"));
+  </script>
+</html>
